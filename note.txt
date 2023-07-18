@@ -1,0 +1,60 @@
+Flow
+
+- Dữ liệu có gì ?
+ + file csv chứa các resume
+ + file csv chứa các job description
+
+- Các bước làm
+
+1. Preprocess - tiền xử lý dữ liệu
+a. Dữ liệu resume
+- có dạng một chuỗi string dài trích ra từ các file resume pdf
+- đưa chuỗi này qua một số xử lý cơ bản
+ + chuyển hết về lower case
+ + bỏ các từ không phải chữ cái tiếng anh
+ + bỏ các từ thông dụng, ko mang nhiều ý nghĩa (stopwords: and, the, is, ...)
+ + stemming (chuyển các từ về 1 dạng, ví dụ opening, opened -> open)
+
+b. Dữ liệu JD
+- chỉ các trường tier, job title và job description
+- cũng tiền xử lý như resume
+
+2. Visualize dữ liệu
+- làm hệt như phần Exploratory Data Analysis trong notebook này: https://www.kaggle.com/code/sanchukanirupama/rf-based-multiclass-resume-classifier#Data-Preprocessing
+=> môn này là môn visualize nên phần này quan trọng
+
+3. Vào việc chính, matching CV với JD kiểu gì ?
+a. Tổng quan cách làm
+- Đưa CV là 1 đoạn text dài qua một mô hình Text Summarizer => ra được bản tóm tắt của CV đó 
+  => đưa bản tóm tắt đó qua một mô hình Text2Vec (text to vector) => ra được 1 vector đại diện cho cả đoạn CV
+- Đối với JD, làm hoàn toàn tương tự
+- Vậy ta có 2 vector đại diện cho CV và JD, cuối cùng sẽ so sánh 2 vector này dựa vào Cosine Similarity, 2 vector nào có cosine similarity lớn hơn thì càng giống nhau => match CV với JD đó
+
+b. Mô hình Text Summarizer:
+- https://huggingface.co/philschmid/bart-large-cnn-samsum
+- Dùng luôn mô hình pretrained, ko làm gì thêm
+- Nói qua về mô hình
+ + kiến trúc là gì: Transformer
+ + train với bộ dữ lieuj nào: SamSum
+
+c. Mô hình Text2Vec
+- https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2
+- Cũng dùng luôn mô hình pretrained
+- Cungx nói qua về mô hình
+
+d. Mô hình transform vector
+- Nếu lấy luôn vector output của mô hình text2vec để so sánh cosine similarity cũng được
+- Tuy nhiên mình có nhãn dữ liệu CV-JD nào là hợp nhau và ko hợp nhau
+=> train 1 mô hình biến đổi vector sao cho 2 vector nào hợp nhau thì sau khi biến đổi sẽ ra 2 vector mới có cosine similarity cao, và ngược lại.
+Ví dụ: 2 vector v1 v2 ban đầu dù hợp nhau, nhưng chỉ có cosine similarity = 0.3. Sau khi cho qua mô hình biến đổi, ta sẽ được 2 vector mới có cosine similarity là 0.6
+- Kiến trúc mô hình: là 1 mạng MLP đơn giản
+ + 3 lớp: 1 lớp đầu vào, 1 lớp ẩn, 1 lớp đầu ra, mỗi lớp có 384 unit, là số chiều của vector output của mô hình Text2Vec
+ + loss sử dụng: https://pytorch.org/docs/stable/generated/torch.nn.CosineEmbeddingLoss.html
+
+- Mô hình đạt độ chính xác ... trên tập test với threshold = 0.4
+
+
+
+
+
+

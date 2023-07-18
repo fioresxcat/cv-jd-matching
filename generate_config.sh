@@ -1,0 +1,1 @@
+python main.py fit --print_config > config.yaml

@@ -1,0 +1,17 @@
+Các hướng làm
+
+0. preprocessing and visualizing text
+- bước đầu tiên cần làm cho mọi ý tưởng phía sau
+
+1. text summarize -> text embedding -> cosine sim
+cho cv và jd vào 1 mô hình sentence-transformers text summarize => ra được 2 đoạn tóm tắt => cho 2 đoạn tóm tắt qua mô hình text embedding => ra được 2 vector => lấy hiệu của 2 vector này train 1 mạng MLP để dự đoán xem chúng nó có cùng chủ đê hay ko (bài toán classification với 2 lớp là 0 và 1)
+
+
+2. Dùng Doc2vec để ra text embedding thay vì dùng 1 mô hình text embedding có sẵn
+- train 1 mô hình Doc2vec của gensim trên bộ dữ liệu ko nhãn là đoạn text đã được summarize
+
+3. train ra 2 mô hình dự đoán chủ đề của cv và jd (cả cv và jd đều đã có nhãn chủ đề) => 2 cái nào có chủ đề giống nhau thì cho vào cùng nhóm
+=> chỉ so sánh các vector cv và jd ở cùng nhóm đó (thay vì phải so sánh 1 cv với tất cả các vector jd trong database)
+
+
+
